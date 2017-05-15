@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+
+  <qresource lang="en">
+    <file alias="translation.qm">translations/en.qm</file>
+  </qresource>
+
+  <qresource lang="ru">
+    <file alias="translation.qm">translations/ru.qm</file>
+  </qresource>
+  
+</RCC>
