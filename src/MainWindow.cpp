@@ -74,7 +74,7 @@ void MainWindow::createLanguageMenu()
     auto actionGroup = new QActionGroup(menu);
     actionGroup->setExclusive(true);
 
-    auto create_language_action = [menu, actionGroup](QLocale &locale)
+    auto create_language_action = [menu, actionGroup](QLocale locale)
     {
         auto action = menu->addAction(locale.nativeLanguageName());
         action->setCheckable(true);
