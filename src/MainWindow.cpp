@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(800, 500);
     createActions();
     createMenuBar();
+    createOpenDocumentFileDialog();
+    createSaveAsDocumentFileDialog();
 }
 
 
@@ -36,7 +38,10 @@ void MainWindow::createMenuBar()
 void MainWindow::createFileMenu()
 {
     QMenu *menu = this->menuBar()->addMenu(tr("&File"));
+    menu->addAction(actions.document_new);
     menu->addAction(actions.document_open);
+    menu->addAction(actions.document_save_as);
+    menu->addAction(actions.document_save);
 }
 
 
@@ -49,17 +54,17 @@ void MainWindow::createActions()
 void MainWindow::createDocumentActions()
 {
     actions.document_new = new QAction(tr("New"), this);
-
-
     actions.document_open = new QAction(tr("Open..."), this);
+    actions.document_save = new QAction(tr("Save"), this);
+    actions.document_save_as = new QAction(tr("Save as..."), this);
 
     connect(actions.document_open, &QAction::triggered, [this](){
-        auto fileDialog = new QFileDialog(this);
-        fileDialog->setFileMode(QFileDialog::FileMode::ExistingFile);
-        fileDialog->setNameFilter("JSON document (*.json)");
-        fileDialog->exec();
+        fileDialogs.open_document->exec();
     });
 
+    connect(actions.document_save_as, &QAction::triggered, [this](){
+        fileDialogs.save_as_document->exec();
+    });
 }
 
 
@@ -94,5 +99,25 @@ void MainWindow::createLanguageMenu()
         QMessageBox::information(this, tr("Language switching"),
                                  tr("Restart application to switch language"));
     });
+}
+
+
+void MainWindow::createOpenDocumentFileDialog()
+{
+    auto fileDialog = new QFileDialog(this);
+    fileDialog->setFileMode(QFileDialog::FileMode::ExistingFile);
+    fileDialog->setNameFilter("JSON document (*.json)");
+    fileDialogs.open_document = fileDialog;
+}
+
+
+void MainWindow::createSaveAsDocumentFileDialog()
+{
+    auto fileDialog = new QFileDialog(this);
+    fileDialog->setFileMode(QFileDialog::FileMode::AnyFile);
+    fileDialog->setNameFilter("JSON document (*.json)");
+    fileDialog->setDefaultSuffix("json");
+    fileDialog->setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+    fileDialogs.save_as_document = fileDialog;
 }
 

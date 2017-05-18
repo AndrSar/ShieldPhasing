@@ -2,6 +2,7 @@
 
 #include <QJsonDocument>
 #include <QFile>
+#include <QDateTime>
 
 
 class Document
@@ -16,4 +17,6 @@ public:
 private:
     QFile file;
     QJsonDocument jsonDocument;
+    QDateTime lastModified;
+    QDateTime lastSaved;
 };

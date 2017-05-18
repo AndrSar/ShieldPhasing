@@ -17,5 +17,6 @@ Thumbs.db
 *.log
 *.[oa]
 *.pm
+*.qm
 build/
 Testing/
