@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Document.h"
+#include "Project.h"
 
 #include <QMainWindow>
 #include <QAction>
@@ -23,34 +23,35 @@ private:
     void createLanguageMenu();
     void createActions();
     void updateActions();
-    void createDocumentActions();
-    void createOpenDocumentFileDialog();
-    void createSaveAsDocumentFileDialog();
-    void createNewDocument();
+    void createProjectActions();
+    void createOpenProjectFileDialog();
+    void createSaveAsProjectFileDialog();
+    QString chooseDirectoryFromDialog();
+    void createNewProject();
     void closeDocumentIfExists();
     void createConsumersDockWidget();
+    void createCentralTabWidget();
 
 private:
     struct
     {
-        QAction *document_new;
-        QAction *document_open;
-        QAction *document_save;
-        QAction *document_save_as;
-        QAction *document_close;
-        QAction *document_import;
-        QAction *document_export;
+        QAction *project_new;
+        QAction *project_open;
+        QAction *project_save_as;
+        QAction *project_close;
+        //QAction *document_import;
+        //QAction *document_export;
         QAction *quit;
     } actions;
 
     struct
     {
-        QFileDialog *open_document;
-        QFileDialog *save_as_document;
+        QFileDialog *open_project;
+        QFileDialog *save_as_project;
     } fileDialogs;
 
     QDockWidget *consumersDockWidget;
 
-    std::unique_ptr<Document> document;
+    std::unique_ptr<Project> project;
 };
 

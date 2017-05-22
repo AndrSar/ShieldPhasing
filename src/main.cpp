@@ -4,6 +4,7 @@
 #include <QTranslator>
 #include <QSettings>
 #include <QLocale>
+#include <QStyleFactory>
 
 
 #include <iostream>
@@ -23,9 +24,11 @@ QLocale getLocaleFromLanguageSettings(const QString &language)
 
 int main(int argc, char *argv[])
 {
+    //QApplication::setDesktopSettingsAware(false);
     QApplication application(argc, argv);
     application.setOrganizationName("Andrey Lifanov");
     application.setApplicationName("ShieldPhasingCalculator");
+    //QApplication::setStyle(QStyleFactory::create("motif"));
 
 
     QSettings settings;

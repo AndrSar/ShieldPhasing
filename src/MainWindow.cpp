@@ -1,12 +1,14 @@
 #include "MainWindow.h"
 
 #include <QLayout>
+#include <QPalette>
 #include <QMenuBar>
 #include <QAction>
 #include <QSettings>
 #include <QLocale>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QTabWidget>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -15,9 +17,10 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumSize(800, 500);
     createActions();
     createMenuBar();
-    createOpenDocumentFileDialog();
-    createSaveAsDocumentFileDialog();
+    createOpenProjectFileDialog();
+    createSaveAsProjectFileDialog();
     createConsumersDockWidget();
+    createCentralTabWidget();
 }
 
 
@@ -39,11 +42,11 @@ void MainWindow::createMenuBar()
 void MainWindow::createFileMenu()
 {
     QMenu *menu = this->menuBar()->addMenu(tr("&File"));
-    menu->addAction(actions.document_new);
-    menu->addAction(actions.document_open);
-    menu->addAction(actions.document_save_as);
+    menu->addAction(actions.project_new);
+    menu->addAction(actions.project_open);
+    menu->addAction(actions.project_save_as);
     menu->addAction(actions.document_save);
-    menu->addAction(actions.document_close);
+    menu->addAction(actions.project_close);
     menu->addSeparator();
     menu->addAction(actions.quit);
 }
@@ -51,61 +54,48 @@ void MainWindow::createFileMenu()
 
 void MainWindow::createActions()
 {
-    createDocumentActions();
+    createProjectActions();
     actions.quit = new QAction(tr("Quit"), this);
 }
 
 
 void MainWindow::updateActions()
 {
-    if (document != nullptr)
+    if (project != nullptr)
     {
         actions.document_save->setEnabled(true);
-        actions.document_save_as->setEnabled(true);
-        actions.document_close->setEnabled(true);
+        actions.project_save_as->setEnabled(true);
+        actions.project_close->setEnabled(true);
     }
     else
     {
         actions.document_save->setEnabled(false);
-        actions.document_save_as->setEnabled(false);
-        actions.document_close->setEnabled(false);
+        actions.project_save_as->setEnabled(false);
+        actions.project_close->setEnabled(false);
     }
 }
 
 
-void MainWindow::createDocumentActions()
+void MainWindow::createProjectActions()
 {
-    actions.document_new = new QAction(tr("New"), this);
-    actions.document_open = new QAction(tr("Open..."), this);
-    actions.document_save = new QAction(tr("Save"), this);
-    actions.document_save->setEnabled(false);
-    actions.document_save_as = new QAction(tr("Save as..."), this);
-    actions.document_save_as->setEnabled(false);
-    actions.document_close = new QAction(tr("Close"), this);
-    actions.document_close->setEnabled(false);
+    actions.project_new = new QAction(tr("&New project..."), this);
+    actions.project_open = new QAction(tr("&Open project..."), this);
+    actions.project_save_as = new QAction(tr("Save as..."), this);
+    actions.project_save_as->setEnabled(false);
+    actions.project_close = new QAction(tr("Close"), this);
+    actions.project_close->setEnabled(false);
 
-    connect(actions.document_new, &QAction::triggered, this, &MainWindow::createNewDocument);
+    connect(actions.project_new, &QAction::triggered, this, &MainWindow::createNewProject);
 
-    connect(actions.document_open, &QAction::triggered, [this](){
-        fileDialogs.open_document->exec();
+    connect(actions.project_open, &QAction::triggered, [this](){
+        fileDialogs.open_project->exec();
     });
 
-    connect(actions.document_save_as, &QAction::triggered, [this](){
-        fileDialogs.save_as_document->exec();
+    connect(actions.project_save_as, &QAction::triggered, [this](){
+        fileDialogs.save_as_project->exec();
     });
 
-    connect(actions.document_save, &QAction::triggered, [this](){
-        if (this->document != nullptr && this->document->isSavedToFile())
-        {
-            this->document->save();
-        }
-        else
-        {
-            actions.document_save_as->trigger();
-        }
-    });
-
-    connect(actions.document_close, &QAction::triggered, this, &MainWindow::closeDocumentIfExists);
+    connect(actions.project_close, &QAction::triggered, this, &MainWindow::closeDocumentIfExists);
 }
 
 
@@ -143,33 +133,48 @@ void MainWindow::createLanguageMenu()
 }
 
 
-void MainWindow::createOpenDocumentFileDialog()
+void MainWindow::createOpenProjectFileDialog()
 {
     auto fileDialog = new QFileDialog(this);
     fileDialog->setFileMode(QFileDialog::FileMode::ExistingFile);
-    fileDialog->setNameFilter("JSON document (*.json)");
-    fileDialogs.open_document = fileDialog;
+    fileDialog->setNameFilter("SQLite Database (*.db)");
+    fileDialogs.open_project = fileDialog;
 }
 
 
-void MainWindow::createSaveAsDocumentFileDialog()
+void MainWindow::createSaveAsProjectFileDialog()
 {
     auto fileDialog = new QFileDialog(this);
     fileDialog->setFileMode(QFileDialog::FileMode::AnyFile);
-    fileDialog->setNameFilter("JSON document (*.json)");
-    fileDialog->setDefaultSuffix("json");
+    fileDialog->setNameFilter("SQLite Database (*.json)");
+    fileDialog->setDefaultSuffix("db");
     fileDialog->setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
-    fileDialogs.save_as_document = fileDialog;
+    fileDialogs.save_as_project = fileDialog;
 }
 
 
-void MainWindow::createNewDocument()
+QString MainWindow::chooseDirectoryFromDialog()
+{
+//    QString res;
+//    auto fileDialog = new QFileDialog(this, tr("Choose directory"));
+//    fileDialog->setFileMode(QFileDialog::FileMode::Directory);
+//    fileDialog->setAcceptMode(QFileDialog::AcceptMode::AcceptOpen);
+//    fileDialog->setOption(QFileDialog::ShowDirsOnly, true);
+//    if (fileDialog->exec())
+//        res = fileDialog->sele;
+//    return res;
+
+    return QFileDialog::getExistingDirectory(this, tr("Choose directory"));
+}
+
+
+void MainWindow::createNewProject()
 {
     closeDocumentIfExists();
 
-    if (document == nullptr)
+    if (project == nullptr)
     {
-        document = std::make_unique<Document>();
+        project = std::make_unique<Project>();
     }
 
     updateActions();
@@ -178,7 +183,7 @@ void MainWindow::createNewDocument()
 
 void MainWindow::closeDocumentIfExists()
 {
-    if (document == nullptr)
+    if (project == nullptr)
         return;
 
     auto button = QMessageBox::warning(this, tr("Unsaved changes"),
@@ -193,8 +198,8 @@ void MainWindow::closeDocumentIfExists()
 
     if (button != QMessageBox::Cancel)
     {
-        document->close();
-        document = nullptr;
+        project->close();
+        project = nullptr;
     }
 
     updateActions();
@@ -206,8 +211,21 @@ void MainWindow::createConsumersDockWidget()
     consumersDockWidget = new QDockWidget(tr("Consumers"), this);
     consumersDockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
     consumersDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
-    consumersDockWidget->setWidth(300);
+
     this->addDockWidget(Qt::LeftDockWidgetArea, consumersDockWidget, Qt::Vertical);
+}
+
+
+void MainWindow::createCentralTabWidget()
+{
+    QTabWidget *tabWidget = new QTabWidget(this);
+    tabWidget->setMinimumWidth(300);
+    QWidget *t1 = new QWidget(tabWidget);
+    QWidget *t2 = new QWidget(tabWidget);
+
+    tabWidget->addTab(t1, tr("Phasing"));
+    tabWidget->addTab(t2, tr("Cables"));
+    this->setCentralWidget(tabWidget);
 }
 
 

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 CONFIG   += c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -15,10 +15,10 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp    \
         src/MainWindow.cpp \
-        src/Document.cpp
+    src/Project.cpp
 
 HEADERS  += src/MainWindow.h \
-            src/Document.h
+    src/Project.h
 
 RESOURCES += translations.qrc
 
