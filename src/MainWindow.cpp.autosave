@@ -206,7 +206,7 @@ void MainWindow::createConsumersDockWidget()
     consumersDockWidget = new QDockWidget(tr("Consumers"), this);
     consumersDockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
     consumersDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
-    consumersDockWidget->setWidth(300);
+    consumersDockWidget->setLayout();
     this->addDockWidget(Qt::LeftDockWidgetArea, consumersDockWidget, Qt::Vertical);
 }
 

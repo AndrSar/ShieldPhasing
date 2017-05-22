@@ -13,6 +13,9 @@ public:
     void save();
     void saveAs(const QString &path);
     bool isSavedToFile() const;
+    bool hasUnsavedChanges() const;
+    void close();
+    void closeWithoutSaving();
 
 private:
     QFile file;
