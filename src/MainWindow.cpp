@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 
-#include <QLayout>
 #include <QPalette>
 #include <QMenuBar>
 #include <QAction>
@@ -8,7 +7,12 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QDialog>
 #include <QTabWidget>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -45,7 +49,6 @@ void MainWindow::createFileMenu()
     menu->addAction(actions.project_new);
     menu->addAction(actions.project_open);
     menu->addAction(actions.project_save_as);
-    menu->addAction(actions.document_save);
     menu->addAction(actions.project_close);
     menu->addSeparator();
     menu->addAction(actions.quit);
@@ -63,13 +66,11 @@ void MainWindow::updateActions()
 {
     if (project != nullptr)
     {
-        actions.document_save->setEnabled(true);
         actions.project_save_as->setEnabled(true);
         actions.project_close->setEnabled(true);
     }
     else
     {
-        actions.document_save->setEnabled(false);
         actions.project_save_as->setEnabled(false);
         actions.project_close->setEnabled(false);
     }
@@ -172,10 +173,35 @@ void MainWindow::createNewProject()
 {
     closeDocumentIfExists();
 
-    if (project == nullptr)
-    {
-        project = std::make_unique<Project>();
-    }
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("New project settings"));
+    dialog->setFixedSize(460, 200);
+
+    QMargins textMargins(2, 0, 2, 1);
+
+    QFormLayout *form = new QFormLayout();
+
+    QLineEdit *nameEdit = new QLineEdit();
+    nameEdit->setTextMargins(textMargins);
+    QLineEdit *directoryEdit = new QLineEdit();
+    directoryEdit->setTextMargins(textMargins);
+    auto b = new QPushButton("...");
+    b->setMaximumWidth(40);
+    QHBoxLayout *hb = new QHBoxLayout();
+    hb->addWidget(directoryEdit);
+    hb->addWidget(b);
+
+    form->addRow(tr("Project name"), nameEdit);
+    form->addRow(tr("Project directory"), hb);
+
+    form->setContentsMargins(QMargins(12, 12, 12, 12));
+    form->setSpacing(8);
+    dialog->setLayout(form);
+    dialog->exec();
+
+    project = std::make_unique<Project>();
+
+    delete dialog;
 
     updateActions();
 }
@@ -186,21 +212,24 @@ void MainWindow::closeDocumentIfExists()
     if (project == nullptr)
         return;
 
-    auto button = QMessageBox::warning(this, tr("Unsaved changes"),
-                               tr("Save changes in current document before continue?"),
-                               QMessageBox::StandardButtons( QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel),
-                               QMessageBox::Yes);
+//    auto button = QMessageBox::warning(this, tr("Unsaved changes"),
+//                               tr("Save changes in current document before continue?"),
+//                               QMessageBox::StandardButtons( QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel),
+//                               QMessageBox::Yes);
 
-    if (button == QMessageBox::Yes)
-    {
-        actions.document_save->trigger();
-    }
+//    if (button == QMessageBox::Yes)
+//    {
+//        actions.document_save->trigger();
+//    }
 
-    if (button != QMessageBox::Cancel)
-    {
-        project->close();
-        project = nullptr;
-    }
+//    if (button != QMessageBox::Cancel)
+//    {
+//        project->close();
+//        project = nullptr;
+//    }
+
+    project->close();
+    project = nullptr;
 
     updateActions();
 }

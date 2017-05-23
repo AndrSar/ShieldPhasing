@@ -31,6 +31,7 @@ private:
     void closeDocumentIfExists();
     void createConsumersDockWidget();
     void createCentralTabWidget();
+    //void createNewProjectDialog();
 
 private:
     struct

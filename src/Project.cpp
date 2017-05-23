@@ -3,6 +3,12 @@
 #include <QtSql>
 
 
+Project::Project()
+{
+
+}
+
+
 Project::Project(const QString &file)
 {
 

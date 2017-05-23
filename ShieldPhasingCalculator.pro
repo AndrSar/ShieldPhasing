@@ -14,11 +14,11 @@ TEMPLATE = app
 
 
 SOURCES += src/main.cpp    \
-        src/MainWindow.cpp \
-    src/Project.cpp
+           src/MainWindow.cpp \
+           src/Project.cpp
 
 HEADERS  += src/MainWindow.h \
-    src/Project.h
+            src/Project.h
 
 RESOURCES += translations.qrc
 
