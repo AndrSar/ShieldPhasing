@@ -11,26 +11,37 @@
 #include <QTabWidget>
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QValidator>
+#include <QDir>
+#include <QLabel>
+#include <QPalette>
+#include <QFile>
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    //setWindowTitle(baseWindowTitle());
     setMinimumSize(800, 500);
     createActions();
     createMenuBar();
     createOpenProjectFileDialog();
     createSaveAsProjectFileDialog();
-    createConsumersDockWidget();
-    createCentralTabWidget();
 }
 
 
 MainWindow::~MainWindow()
 {
 
+}
+
+
+QString MainWindow::baseWindowTitle() const
+{
+    return tr("Shield Phasing");
 }
 
 
@@ -147,7 +158,7 @@ void MainWindow::createSaveAsProjectFileDialog()
 {
     auto fileDialog = new QFileDialog(this);
     fileDialog->setFileMode(QFileDialog::FileMode::AnyFile);
-    fileDialog->setNameFilter("SQLite Database (*.json)");
+    fileDialog->setNameFilter("SQLite Database (*.db)");
     fileDialog->setDefaultSuffix("db");
     fileDialog->setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
     fileDialogs.save_as_project = fileDialog;
@@ -171,38 +182,113 @@ QString MainWindow::chooseDirectoryFromDialog()
 
 void MainWindow::createNewProject()
 {
-    closeDocumentIfExists();
-
     QDialog *dialog = new QDialog(this);
     dialog->setWindowTitle(tr("New project settings"));
     dialog->setFixedSize(460, 200);
 
     QMargins textMargins(2, 0, 2, 1);
 
-    QFormLayout *form = new QFormLayout();
+    auto layout = new QVBoxLayout();
+    auto form = new QFormLayout();
+    auto dialogButtons = new QHBoxLayout();
+    layout->addLayout(form);
+    layout->addLayout(dialogButtons);
 
     QLineEdit *nameEdit = new QLineEdit();
     nameEdit->setTextMargins(textMargins);
     QLineEdit *directoryEdit = new QLineEdit();
     directoryEdit->setTextMargins(textMargins);
-    auto b = new QPushButton("...");
-    b->setMaximumWidth(40);
+    QLabel *resultedFilePath = new QLabel();
+    auto directoryChooserButton = new QPushButton("...");
+    directoryChooserButton->setMaximumWidth(40);
     QHBoxLayout *hb = new QHBoxLayout();
     hb->addWidget(directoryEdit);
-    hb->addWidget(b);
+    hb->addWidget(directoryChooserButton);
 
     form->addRow(tr("Project name"), nameEdit);
     form->addRow(tr("Project directory"), hb);
+    form->addRow(tr("Path:"), resultedFilePath);
 
     form->setContentsMargins(QMargins(12, 12, 12, 12));
     form->setSpacing(8);
-    dialog->setLayout(form);
-    dialog->exec();
+    dialog->setLayout(layout);
 
-    project = std::make_unique<Project>();
+    auto createButton = new QPushButton(tr("Create"));
+    createButton->setEnabled(false);
+    auto cancelButton = new QPushButton(tr("Cancel"));
+    dialogButtons->addSpacing(dialog->width()/2);
+    dialogButtons->addWidget(cancelButton);
+    dialogButtons->addWidget(createButton);
+
+    // Behaviour and logic
+    connect(createButton, &QPushButton::released, dialog, &QDialog::accept);
+    connect(cancelButton, &QPushButton::released, dialog, &QDialog::reject);
+    connect(directoryChooserButton, &QPushButton::released, [dialog, directoryEdit](){
+        QString str = QFileDialog::getExistingDirectory(dialog, tr("Choose directory"));
+        if (!str.isEmpty())
+            directoryEdit->setText(str);
+    });
+
+    auto formChecker = [nameEdit, directoryEdit, createButton, resultedFilePath](const QString &text){
+        if (!nameEdit->text().isEmpty() && !directoryEdit->text().isEmpty())
+        {
+            QDir dir(directoryEdit->text());
+            QString filePath = dir.filePath(nameEdit->text() + ".db");
+            resultedFilePath->setText(filePath);
+            QPalette palette;
+            palette.setColor(QPalette::Foreground, QColor("red"));
+            if (dir.exists())
+            {
+                createButton->setEnabled(true);
+                palette.setColor(QPalette::Foreground, QColor("black"));
+            }
+            else
+            {
+                createButton->setEnabled(false);
+            }
+
+            resultedFilePath->setPalette(palette);
+        }
+        else
+        {
+            resultedFilePath->setText("");
+            createButton->setEnabled(false);
+        }
+    };
+
+    connect(nameEdit, &QLineEdit::textChanged, formChecker);
+    connect(directoryEdit, &QLineEdit::textChanged, formChecker);
+
+    if (dialog->exec() == QDialog::Accepted)
+    {
+        QString filePath = resultedFilePath->text();
+        bool canProceed = true;
+        if (QFile::exists(filePath))
+        {
+            auto overwrite = QMessageBox::warning(dialog, tr("Overwrite file"),
+                                                  tr("File already exists. Proceed to ovewrite?"),
+                                                  QMessageBox::Cancel | QMessageBox::Ok,
+                                                  QMessageBox::Ok);
+            canProceed = overwrite == QMessageBox::Ok;
+        }
+
+        if (canProceed)
+        {
+            closeDocumentIfExists();
+            project = Project::create(nameEdit->text(), directoryEdit->text());
+            if (project == nullptr)
+            {
+                QMessageBox::critical(dialog, tr("Error"),
+                                              tr("Couldn't create a project"));
+            }
+            else
+            {
+                initProjectWorkSpace();
+            }
+        }
+    }
 
     delete dialog;
-
     updateActions();
 }
 
@@ -255,6 +341,14 @@ void MainWindow::createCentralTabWidget()
     tabWidget->addTab(t1, tr("Phasing"));
     tabWidget->addTab(t2, tr("Cables"));
     this->setCentralWidget(tabWidget);
+}
+
+
+void MainWindow::initProjectWorkSpace()
+{
+    setWindowTitle(project->getPath());
+    createCentralTabWidget();
+    createConsumersDockWidget();
 }
 
 

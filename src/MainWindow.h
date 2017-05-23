@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    QString baseWindowTitle() const;
 
 private:
     void createMenuBar();
@@ -31,7 +32,7 @@ private:
     void closeDocumentIfExists();
     void createConsumersDockWidget();
     void createCentralTabWidget();
-    //void createNewProjectDialog();
+    void initProjectWorkSpace();
 
 private:
     struct
