@@ -19,6 +19,7 @@
 #include <QLabel>
 #include <QPalette>
 #include <QFile>
+#include <QCloseEvent>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -70,6 +71,8 @@ void MainWindow::createActions()
 {
     createProjectActions();
     actions.quit = new QAction(tr("Quit"), this);
+    actions.quit->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+    connect(actions.quit, &QAction::triggered, this, &QWidget::close);
 }
 
 
@@ -98,16 +101,17 @@ void MainWindow::createProjectActions()
     actions.project_close->setEnabled(false);
 
     connect(actions.project_new, &QAction::triggered, this, &MainWindow::createNewProject);
-
-    connect(actions.project_open, &QAction::triggered, [this](){
-        fileDialogs.open_project->exec();
-    });
+    connect(actions.project_open, &QAction::triggered, this, &MainWindow::openProject);
 
     connect(actions.project_save_as, &QAction::triggered, [this](){
         fileDialogs.save_as_project->exec();
     });
 
-    connect(actions.project_close, &QAction::triggered, this, &MainWindow::closeDocumentIfExists);
+    connect(actions.project_close, &QAction::triggered, this, &MainWindow::closeProjectIfExists);
+
+    actions.project_new->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
+    actions.project_open->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
+    actions.project_save_as->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
 }
 
 
@@ -274,7 +278,7 @@ void MainWindow::createNewProject()
 
         if (canProceed)
         {
-            closeDocumentIfExists();
+            closeProjectIfExists();
             project = Project::create(nameEdit->text(), directoryEdit->text());
             if (project == nullptr)
             {
@@ -293,7 +297,30 @@ void MainWindow::createNewProject()
 }
 
 
-void MainWindow::closeDocumentIfExists()
+void MainWindow::openProject()
+{
+    connect(fileDialogs.open_project, &QFileDialog::fileSelected, [this](const QString &file)
+    {
+        closeProjectIfExists();
+
+        project = Project::open(file);
+        if (project == nullptr)
+        {
+            QMessageBox::critical(this, tr("Error"),
+                                          tr("Couldn't open a project"));
+        }
+        else
+        {
+            updateActions();
+            initProjectWorkSpace();
+        }
+    });
+
+    fileDialogs.open_project->exec();
+}
+
+
+void MainWindow::closeProjectIfExists()
 {
     if (project == nullptr)
         return;
@@ -318,6 +345,7 @@ void MainWindow::closeDocumentIfExists()
     project = nullptr;
 
     updateActions();
+    updateTitle();
 }
 
 
@@ -346,9 +374,29 @@ void MainWindow::createCentralTabWidget()
 
 void MainWindow::initProjectWorkSpace()
 {
-    setWindowTitle(project->getPath());
     createCentralTabWidget();
     createConsumersDockWidget();
+    updateTitle();
+}
+
+
+void MainWindow::updateTitle()
+{
+    if (project)
+    {
+        setWindowTitle(project->getPath());
+    }
+    else
+    {
+        setWindowTitle("");
+    }
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    closeProjectIfExists();
+    event->accept();
 }
 
 

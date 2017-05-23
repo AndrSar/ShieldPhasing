@@ -3,6 +3,7 @@
 #include <QtSql>
 #include <QFile>
 #include <QDir>
+#include <QFileInfo>
 
 #include <iostream>
 
@@ -27,6 +28,22 @@ std::unique_ptr<Project> Project::create(const QString &name, const QString &dir
 }
 
 
+std::unique_ptr<Project> Project::open(const QString &path)
+{
+    auto db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(path);
+    if (db.open() && db.isValid())
+    {
+        QFileInfo fileInfo(path);
+        return std::make_unique<Project>(fileInfo.baseName(), fileInfo.absoluteDir().absolutePath(), db);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+
 Project::Project()
 {
 
@@ -38,12 +55,6 @@ Project::Project(const QString &name, const QString &dir, QSqlDatabase db):
     dir(dir),
     db(db)
 {
-}
-
-
-void Project::open(const QString &dbfile)
-{
-
 }
 
 

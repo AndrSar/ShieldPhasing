@@ -29,10 +29,13 @@ private:
     void createSaveAsProjectFileDialog();
     QString chooseDirectoryFromDialog();
     void createNewProject();
-    void closeDocumentIfExists();
+    void openProject();
+    void closeProjectIfExists();
     void createConsumersDockWidget();
     void createCentralTabWidget();
     void initProjectWorkSpace();
+    void updateTitle();
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     struct

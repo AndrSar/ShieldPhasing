@@ -10,11 +10,11 @@ class Project
 {
 public:
     static std::unique_ptr<Project> create(const QString &name, const QString &dir);
+    static std::unique_ptr<Project> open(const QString &path);
 
 public:
     Project();
     Project(const QString &name, const QString &dir, QSqlDatabase db);
-    void open(const QString &dbfile);
     void saveAs(const QString &path);
     void close();
     QString getName() const;
