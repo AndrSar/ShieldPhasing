@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Project.h"
+#include "Workspace.h"
 
 #include <QMainWindow>
 #include <QAction>
 #include <QFileDialog>
-#include <QDockWidget>
 #include <memory>
+
 
 
 class MainWindow : public QMainWindow
@@ -31,9 +32,8 @@ private:
     void createNewProject();
     void openProject();
     void closeProjectIfExists();
-    void createConsumersDockWidget();
-    void createCentralTabWidget();
-    void initProjectWorkSpace();
+    void initProjectWorkspace();
+    void closeProjectWorkspace();
     void updateTitle();
     void closeEvent(QCloseEvent *event) override;
 
@@ -55,8 +55,7 @@ private:
         QFileDialog *save_as_project;
     } fileDialogs;
 
-    QDockWidget *consumersDockWidget;
-
-    std::unique_ptr<Project> project;
+    std::shared_ptr<Project> project;
+    std::unique_ptr<Workspace> workspace;
 };
 

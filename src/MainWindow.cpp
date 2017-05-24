@@ -287,7 +287,7 @@ void MainWindow::createNewProject()
             }
             else
             {
-                initProjectWorkSpace();
+                initProjectWorkspace();
             }
         }
     }
@@ -312,7 +312,7 @@ void MainWindow::openProject()
         else
         {
             updateActions();
-            initProjectWorkSpace();
+            initProjectWorkspace();
         }
     });
 
@@ -341,6 +341,8 @@ void MainWindow::closeProjectIfExists()
 //        project = nullptr;
 //    }
 
+    closeProjectWorkspace();
+
     project->close();
     project = nullptr;
 
@@ -349,34 +351,20 @@ void MainWindow::closeProjectIfExists()
 }
 
 
-void MainWindow::createConsumersDockWidget()
+void MainWindow::initProjectWorkspace()
 {
-    consumersDockWidget = new QDockWidget(tr("Consumers"), this);
-    consumersDockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    consumersDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
-
-    this->addDockWidget(Qt::LeftDockWidgetArea, consumersDockWidget, Qt::Vertical);
-}
-
-
-void MainWindow::createCentralTabWidget()
-{
-    QTabWidget *tabWidget = new QTabWidget(this);
-    tabWidget->setMinimumWidth(300);
-    QWidget *t1 = new QWidget(tabWidget);
-    QWidget *t2 = new QWidget(tabWidget);
-
-    tabWidget->addTab(t1, tr("Phasing"));
-    tabWidget->addTab(t2, tr("Cables"));
-    this->setCentralWidget(tabWidget);
-}
-
-
-void MainWindow::initProjectWorkSpace()
-{
-    createCentralTabWidget();
-    createConsumersDockWidget();
+    workspace = std::make_unique<Workspace>(this, project);
     updateTitle();
+}
+
+
+void MainWindow::closeProjectWorkspace()
+{
+    if (workspace)
+    {
+        workspace->close();
+        workspace = nullptr;
+    }
 }
 
 

@@ -15,10 +15,16 @@ TEMPLATE = app
 
 SOURCES += src/main.cpp    \
            src/MainWindow.cpp \
-           src/Project.cpp
+           src/Project.cpp \
+           src/Workspace.cpp \
+           src/Consumer.cpp \
+           src/Shield.cpp
 
-HEADERS  += src/MainWindow.h \
-            src/Project.h
+HEADERS += src/MainWindow.h \
+           src/Project.h \
+           src/Workspace.h \
+           src/Consumer.h \
+           src/Shield.h
 
 RESOURCES += translations.qrc
 
