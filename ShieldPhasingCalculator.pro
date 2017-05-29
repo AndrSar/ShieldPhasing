@@ -17,14 +17,19 @@ SOURCES += src/main.cpp    \
            src/MainWindow.cpp \
            src/Project.cpp \
            src/Workspace.cpp \
-           src/Consumer.cpp \
-           src/Shield.cpp
+           src/models/Consumer.cpp \
+           src/models/Shield.cpp \
+           src/models/ShieldModel.cpp \
+           src/models/ConsumerModel.cpp
 
 HEADERS += src/MainWindow.h \
            src/Project.h \
            src/Workspace.h \
-           src/Consumer.h \
-           src/Shield.h
+           src/models/Consumer.h \
+           src/models/Shield.h \
+           src/models/ShieldModel.h \
+           src/models/ConsumerModel.h
+
 
 RESOURCES += translations.qrc
 

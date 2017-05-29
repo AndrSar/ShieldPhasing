@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Consumer.h"
 #include <QString>
-#include <vector>
 
 
 class Shield
@@ -13,5 +11,4 @@ public:
 private:
     QString name;
     unsigned int power_capacity;
-    std::vector<Consumer> consumers;
 };
