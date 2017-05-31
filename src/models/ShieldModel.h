@@ -6,5 +6,8 @@
 
 class ShieldModel : public QAbstractListModel
 {
+    Q_OBJECT
 
+public:
+    ShieldModel();
 };

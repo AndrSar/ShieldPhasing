@@ -1,9 +1,10 @@
 #include "Shield.h"
 
 
-Shield::Shield(const QString name, unsigned int power_capacity):
+Shield::Shield(const QString name):
     name(name),
-    power_capacity(power_capacity)
+    power_capacity(0),
+    floor(0)
 {
 
 }

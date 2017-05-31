@@ -20,7 +20,8 @@ SOURCES += src/main.cpp    \
            src/models/Consumer.cpp \
            src/models/Shield.cpp \
            src/models/ShieldModel.cpp \
-           src/models/ConsumerModel.cpp
+           src/models/ConsumerModel.cpp \
+           src/models/TestModelsAccessProvider.cpp
 
 HEADERS += src/MainWindow.h \
            src/Project.h \
@@ -28,7 +29,9 @@ HEADERS += src/MainWindow.h \
            src/models/Consumer.h \
            src/models/Shield.h \
            src/models/ShieldModel.h \
-           src/models/ConsumerModel.h
+           src/models/ConsumerModel.h \
+           src/models/ModelsAccessInterface.h \
+           src/models/TestModelsAccessProvider.h
 
 
 RESOURCES += translations.qrc

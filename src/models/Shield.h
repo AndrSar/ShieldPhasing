@@ -6,9 +6,10 @@
 class Shield
 {
 public:
-    Shield(const QString name, unsigned int power_capacity);
+    Shield(const QString name);
 
 private:
     QString name;
     unsigned int power_capacity;
+    int floor;
 };

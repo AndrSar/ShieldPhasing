@@ -1,5 +1,8 @@
 #pragma once
 
+#include "models/ModelsAccessInterface.h"
+#include "models/TestModelsAccessProvider.h"
+
 #include <QFile>
 #include <QDateTime>
 #include <QSqlDatabase>
@@ -27,4 +30,7 @@ private:
     QSqlDatabase db;
     QDateTime lastModified;
     QDateTime lastSaved;
+
+private:
+    std::shared_ptr<ModelsAccessInterface> modelsAccessInterface;
 };
